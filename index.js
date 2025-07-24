@@ -71,7 +71,7 @@ function parseOcrResponseToMarkdown(ocrResponse, pdfPath, includeImages) {
   let markdownContent = ocrResponse.doc.text_body;
 
   if (includeImages && ocrResponse.doc.images && ocrResponse.pages.images.length > 0) {
-    console.log(`Found ${ocrResponse.doc.images.length} images. Saving them to ${imagesDir}...`);
+    console.log(`Found ${ocrResponse.pages.images.length} images. Saving them to ${imagesDir}...`);
     if (!fs.existsSync(imagesDir)) {
       fs.mkdirSync(imagesDir);
     }

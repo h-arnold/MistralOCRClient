@@ -45,16 +45,49 @@ program
           type: "document_url",
           documentUrl: dataUrl,
         },
+        include_image_base64: true, // Include base64 encoded images
       });
       console.log("OCR processing complete.");
 
       const outputJsonPath = pdfPath.replace(/\.pdf$/i, ".json");
+      const outputDir = path.dirname(pdfPath);
+      const baseName = path.basename(pdfPath, ".pdf");
+      const imagesDir = path.join(outputDir, `${baseName}_images`);
+
+      if (ocrResponse.doc.images && ocrResponse.doc.images.length > 0) {
+        console.log(`Found ${ocrResponse.doc.images.length} images. Saving them to ${imagesDir}...`);
+        if (!fs.existsSync(imagesDir)) {
+          fs.mkdirSync(imagesDir);
+        }
+
+        ocrResponse.doc.images.forEach(image => {
+          const imagePath = path.join(imagesDir, image.name);
+          const imageBuffer = Buffer.from(image.image_base64, 'base64');
+          fs.writeFileSync(imagePath, imageBuffer);
+          console.log(`Saved image: ${imagePath}`);
+        });
+      }
 
       console.log(`Saving OCR output to ${outputJsonPath}...`);
       fs.writeFileSync(outputJsonPath, JSON.stringify(ocrResponse, null, 2));
       console.log("OCR output saved successfully.");
 
-      console.log(`Successfully processed ${sourcePdf} and saved the output to ${outputJsonPath}`);
+      let markdownContent = ocrResponse.doc.text_body;
+      if (ocrResponse.doc.images && ocrResponse.doc.images.length > 0) {
+        console.log("Replacing image placeholders in markdown...");
+        ocrResponse.doc.images.forEach(image => {
+          const imagePath = path.join(`${baseName}_images`, image.name);
+          markdownContent = markdownContent.replace(`![${image.name}](${image.name})`, `![${image.name}](${imagePath})`);
+        });
+      }
+
+      const outputMarkdownPath = pdfPath.replace(/\.pdf$/i, ".md");
+      console.log(`Saving markdown output to ${outputMarkdownPath}...`);
+      fs.writeFileSync(outputMarkdownPath, markdownContent);
+      console.log("Markdown output saved successfully.");
+
+
+      console.log(`Successfully processed ${sourcePdf} and saved the output to ${outputJsonPath} and ${outputMarkdownPath}`);
     } catch (error) {
       console.error("An error occurred:", error.message);
     }

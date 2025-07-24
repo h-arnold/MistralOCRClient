@@ -30,9 +30,13 @@ A simple Node.js command-line utility to perform OCR on a PDF file using the Mis
 To process a PDF file, run the following command in your terminal:
 
 ```bash
-node index.js /path/to/your/document.pdf
+node index.js [options] /path/to/your/document.pdf
 ```
 
 Replace `/path/to/your/document.pdf` with the actual path to the PDF file you want to process.
 
-The tool will create a new JSON file with the same name as the source PDF in the same directory, containing the OCR results. For example, if you process `document.pdf`, the output will be saved as `document.json`.
+### Options
+
+*   `-i, --include-images`: Include images in the markdown output. This will create a directory named `{pdf_filename}_images` and save the images there.
+
+The tool will create a new JSON file and a new Markdown file with the same name as the source PDF in the same directory, containing the OCR results. For example, if you process `document.pdf`, the output will be saved as `document.json` and `document.md`.

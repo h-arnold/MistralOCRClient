@@ -45,7 +45,7 @@ program
           type: "document_url",
           documentUrl: dataUrl,
         },
-        include_image_base64: true, // Include base64 encoded images
+        include_image_base64: true // Include base64 encoded images
       });
       console.log("OCR processing complete.");
 

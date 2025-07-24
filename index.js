@@ -46,7 +46,7 @@ program
           type: "document_url",
           documentUrl: dataUrl,
         },
-        include_image_base64: options.includeImages
+        include_image_base64: true
       });
       console.log("OCR processing complete.");
 
@@ -70,13 +70,13 @@ function parseOcrResponseToMarkdown(ocrResponse, pdfPath, includeImages) {
 
   let markdownContent = ocrResponse.doc.text_body;
 
-  if (includeImages && ocrResponse.doc.images && ocrResponse.doc.images.length > 0) {
+  if (includeImages && ocrResponse.doc.images && ocrResponse.pages.images.length > 0) {
     console.log(`Found ${ocrResponse.doc.images.length} images. Saving them to ${imagesDir}...`);
     if (!fs.existsSync(imagesDir)) {
       fs.mkdirSync(imagesDir);
     }
 
-    ocrResponse.doc.images.forEach(image => {
+    ocrResponse.pages.images.forEach(image => {
       const imagePath = path.join(imagesDir, image.name);
       const imageBuffer = Buffer.from(image.image_base64, 'base64');
       fs.writeFileSync(imagePath, imageBuffer);

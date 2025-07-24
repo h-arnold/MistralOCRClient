@@ -29,10 +29,16 @@ program
 
       console.log(`Processing ${sourcePdf}...`);
 
+      console.log("Reading PDF file...");
       const pdfBuffer = fs.readFileSync(pdfPath);
+      console.log("PDF file read successfully.");
+
+      console.log("Converting PDF to base64...");
       const pdfBase64 = pdfBuffer.toString("base64");
       const dataUrl = `data:application/pdf;base64,${pdfBase64}`;
+      console.log("PDF converted to base64 successfully.");
 
+      console.log("Sending data to Mistral AI for OCR processing...");
       const ocrResponse = await client.ocr.process({
         model: "mistral-ocr-latest",
         document: {
@@ -40,10 +46,13 @@ program
           documentUrl: dataUrl,
         },
       });
+      console.log("OCR processing complete.");
 
       const outputJsonPath = pdfPath.replace(/\.pdf$/i, ".json");
 
+      console.log(`Saving OCR output to ${outputJsonPath}...`);
       fs.writeFileSync(outputJsonPath, JSON.stringify(ocrResponse, null, 2));
+      console.log("OCR output saved successfully.");
 
       console.log(`Successfully processed ${sourcePdf} and saved the output to ${outputJsonPath}`);
     } catch (error) {

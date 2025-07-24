@@ -1,5 +1,4 @@
-
-const MistralClient = require("@mistralai/mistralai");
+const { Mistral } = require("@mistralai/mistralai");
 const dotenv = require("dotenv");
 const { Command } = require("commander");
 const fs = require("fs");
@@ -21,20 +20,25 @@ program
         throw new Error("MISTRAL_API_KEY is not defined in the .env file");
       }
 
-      const client = new MistralClient(apiKey);
+      const client = new Mistral({ apiKey });
 
       const pdfPath = path.resolve(sourcePdf);
       if (!fs.existsSync(pdfPath)) {
         throw new Error(`File not found: ${pdfPath}`);
       }
 
-      const pdfBuffer = fs.readFileSync(pdfPath);
-
       console.log(`Processing ${sourcePdf}...`);
 
-      const ocrResponse = await client.files.create({
-        file: pdfBuffer,
-        purpose: "assistants",
+      const pdfBuffer = fs.readFileSync(pdfPath);
+      const pdfBase64 = pdfBuffer.toString("base64");
+      const dataUrl = `data:application/pdf;base64,${pdfBase64}`;
+
+      const ocrResponse = await client.ocr.process({
+        model: "mistral-ocr-latest",
+        document: {
+          type: "document_url",
+          documentUrl: dataUrl,
+        },
       });
 
       const outputJsonPath = pdfPath.replace(/\.pdf$/i, ".json");
